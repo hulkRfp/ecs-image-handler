@@ -60,6 +60,13 @@ export interface IDebugInfo {
   sharp: ISharpInfo;
 }
 
+// 定义缓存对象接口
+interface CacheObject {
+  body: any;
+  type: string;
+  headers: any;
+}
+
 export default function debug(lruCache?: LRUCache<string, CacheObject>): IDebugInfo {
   const ret: IDebugInfo = {
     os: {
