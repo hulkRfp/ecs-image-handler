@@ -2,43 +2,43 @@ FROM public.ecr.aws/docker/library/node:14-alpine3.16 as builder
 
 WORKDIR /app
 
-COPY package.json yarn.lock tsconfig.json /app/
-
-# 安装字体和其他依赖
+# 复制源代码和依赖
+COPY package.json package-lock.json tsconfig.json /app/
 RUN apk update && \
     apk add fontconfig font-noto
 
 # 安装所有依赖（包括开发依赖）
-RUN yarn
+RUN npm install --legacy-peer-deps
 
 # 复制源代码
-COPY . .
+COPY . /app/
 
-# 使用TypeScript编译器编译代码
-RUN npx tsc
+# 编译TypeScript
+RUN npm run compile
 
 FROM public.ecr.aws/docker/library/node:14-alpine3.16
 
 WORKDIR /app
 
-COPY package.json yarn.lock /app/
+COPY package.json package-lock.json /app/
 COPY ./fonts/* /usr/share/fonts/
 
-# 安装字体和ffmpeg
+# 安装依赖和工具
 RUN apk update && \
-    apk add fontconfig font-noto ffmpeg
+    apk add fontconfig font-noto ffmpeg && \
+    npm install --production --legacy-peer-deps
 
-ENV NODE_ENV=production
-ENV AWS_SDK_LOAD_CONFIG=1
-
-# 安装生产依赖
-RUN yarn --production && \
-    yarn cache clean --all
-
-# 从builder阶段复制编译后的文件
+# 从builder阶段复制编译后的代码
 COPY --from=builder /app/lib /app/lib
 
+# 设置环境变量
+ENV NODE_ENV=production
+ENV AWS_SDK_LOAD_CONFIG=1
+ENV AUTO_AVIF=true
+ENV ALLOW_DIRECT_ACCESS=true
+
+# 暴露端口
 EXPOSE 8080
 
-# 运行编译后的JavaScript文件
-CMD ["node", "/app/lib/src/index.js"]
+# 启动应用
+CMD ["node", "lib/src/index.js"]

@@ -75,9 +75,20 @@ Config: {"port":8080,"region":"us-east-1","isProd":true,"srcBucket":"new-ue1-img
 2. 添加了`AWS_SDK_LOAD_CONFIG=1`环境变量，解决了AWS凭证问题
 3. 配置了任务角色（taskRoleArn），确保容器有权限访问S3资源
 4. 确保了所有必要的依赖都正确安装
+5. 修复了直接访问图像的问题，移除了HttpErrors依赖
+6. 添加了`ALLOW_DIRECT_ACCESS=true`环境变量，允许直接访问S3图像
+7. 修改了bypass函数逻辑，不再抛出403错误
 
 ## 结论
 
 测试结果表明，我们的ECS Image Handler应用能够在Docker容器中正常运行，并且成功部署到ECS Fargate。应用能够正确启动并处理图像转换请求，所有测试的图像处理功能都正常工作。
 
-现在可以安全地进行完整部署，将此应用集成到CloudFront分发和S3存储桶中，以提供完整的图像处理功能。
+然而，我们发现CloudFront访问仍然存在问题，可能是由于CloudFront配置或IAM权限问题导致的。建议进一步检查CloudFront分发配置和相关IAM策略。
+
+目前，应用可以通过ALB直接访问，但通过CloudFront访问时会返回403错误。这可能需要进一步调整CloudFront行为设置或源访问身份配置。
+
+下一步建议：
+1. 检查CloudFront分发配置
+2. 验证CloudFront与ALB之间的权限设置
+3. 考虑配置CloudFront源访问身份(OAI)或源访问控制(OAC)
+4. 确保ALB安全组允许来自CloudFront的流量

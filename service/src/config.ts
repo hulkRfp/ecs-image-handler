@@ -7,12 +7,14 @@ const {
   SRC_BUCKETS,
   STYLE_TABLE_NAME,
   AUTO_WEBP,
+  AUTO_AVIF,
   SECRET_NAME,
   SHARP_QUEUE_LIMIT,
   CONFIG_JSON_PARAMETER_NAME,
   CACHE_TTL_SEC,
   CACHE_MAX_ITEMS,
   CACHE_MAX_SIZE_MB,
+  ALLOW_DIRECT_ACCESS,
 } = process.env;
 
 export interface IConfig {
@@ -23,12 +25,14 @@ export interface IConfig {
   srcBuckets: string[];
   styleTableName: string;
   autoWebp: boolean;
+  autoAvif: boolean;
   secretName: string;
   sharpQueueLimit: number;
   configJsonParameterName: string;
   CACHE_TTL_SEC: number;
   CACHE_MAX_ITEMS: number;
   CACHE_MAX_SIZE_MB: number;
+  allowDirectAccess: string;
 }
 
 function parseInt(s: string) {
@@ -56,12 +60,14 @@ const conf: IConfig = {
   srcBuckets: srcBuckets,
   styleTableName: STYLE_TABLE_NAME || 'style-table-name',
   autoWebp: ['yes', '1', 'true'].includes((AUTO_WEBP ?? '').toLowerCase()),
+  autoAvif: ['yes', '1', 'true'].includes((AUTO_AVIF ?? '').toLowerCase()),
   secretName: SECRET_NAME ?? 'X-Client-Authorization',
   sharpQueueLimit: parseInt(SHARP_QUEUE_LIMIT ?? '1'),
   configJsonParameterName: CONFIG_JSON_PARAMETER_NAME ?? '',
   CACHE_TTL_SEC: parseInt(CACHE_TTL_SEC ?? '300'),
   CACHE_MAX_ITEMS: parseInt(CACHE_MAX_ITEMS ?? '10000'),
   CACHE_MAX_SIZE_MB: parseInt(CACHE_MAX_SIZE_MB ?? '1024'),
+  allowDirectAccess: ALLOW_DIRECT_ACCESS ?? 'false',
 };
 
 export default conf;

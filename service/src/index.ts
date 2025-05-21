@@ -1,8 +1,7 @@
 import * as S3 from 'aws-sdk/clients/s3';
 import * as SecretsManager from 'aws-sdk/clients/secretsmanager';
 import * as SSM from 'aws-sdk/clients/ssm';
-import * as HttpErrors from 'http-errors';
-import * as Koa from 'koa'; // http://koajs.cn
+import * as Koa from 'koa';
 import * as bodyParser from 'koa-bodyparser';
 import * as koaCash from 'koa-cash';
 import * as logger from 'koa-logger';
@@ -13,8 +12,19 @@ import config from './config';
 import debug from './debug';
 import { bufferStore, getBufferStores, getProcessor, parseRequest, setMaxGifSizeMB, setMaxGifPages } from './default';
 import * as is from './is';
-import { IHttpHeaders, InvalidArgument } from './processor';
+import { Features, IHttpHeaders, InvalidArgument } from './processor';
 import { IBufferStore } from './store';
+
+// 定义一个接口来扩展Koa上下文
+interface ExtendedContext extends Koa.ParameterizedContext {
+  features?: { [key: string]: any };
+}
+
+interface CacheObject {
+  body: any;
+  type: string;
+  headers: IHttpHeaders;
+}
 
 const MB = 1048576;
 
@@ -94,7 +104,7 @@ router.get(['/debug', '/_debug'], async (ctx) => {
   ctx.body = 'Please check your server logs for more details!';
 });
 
-router.get('/(.*)', async (ctx) => {
+router.get('/(.*)', async (ctx: ExtendedContext) => {
   if (await ctx.cashed()) return;
 
   const queue = sharp.counters().queue;
@@ -103,14 +113,25 @@ router.get('/(.*)', async (ctx) => {
     ctx.status = 429;
     return;
   }
-  const { data, type, headers } = await ossprocess(ctx, bypass);
+  
+  // 检查Accept头是否包含image/avif
+  const acceptHeader = ctx.get('Accept') || '';
+  const acceptsAvif = acceptHeader.includes('image/avif');
+  
+  // 如果客户端支持AVIF并且配置启用了自动AVIF
+  if (acceptsAvif && config.autoAvif) {
+    ctx.features = ctx.features || {};
+    ctx.features[Features.AutoAvif] = true;
+  }
+  
+  const { data, type, headers } = await ossprocess(ctx);
   ctx.body = data;
   ctx.type = type;
   ctx.set(headers);
 });
 
 app.use(router.routes());
-app.use(router.allowedMethods);
+app.use(router.allowedMethods());
 
 app.on('error', (err: Error) => {
   const msg = err.stack || err.toString();
@@ -144,7 +165,7 @@ function errorHandler(): Koa.Middleware<Koa.DefaultState, Koa.DefaultContext, an
   };
 }
 
-function getBufferStore(ctx: Koa.ParameterizedContext): IBufferStore {
+function getBufferStore(ctx: ExtendedContext): IBufferStore {
   const bucket = ctx.headers['x-bucket'];
   if (bucket && typeof bucket === 'string') {
     // Check if we have a store for this bucket
@@ -162,19 +183,30 @@ function getBufferStore(ctx: Koa.ParameterizedContext): IBufferStore {
   return DefaultBufferStore;
 }
 
-async function ossprocess(ctx: Koa.ParameterizedContext, beforeGetFn?: () => void):
+async function ossprocess(ctx: ExtendedContext):
 Promise<{ data: any; type: string; headers: IHttpHeaders }> {
   const { uri, actions } = parseRequest(ctx.path, ctx.query);
   
   // 只通过 x-bucket 头选择存储桶，不再解析路径
   const bs = getBufferStore(ctx);
+  
+  // 检查是否有处理操作
   if (actions.length > 1) {
+    console.log(`Processing image with ${actions.length - 1} actions`);
     const processor = getProcessor(actions[0]);
     const context = await processor.newContext(uri, actions, bs);
+    
+    // 如果客户端支持AVIF并且配置启用了自动AVIF
+    if (ctx.features && ctx.features[Features.AutoAvif]) {
+      context.features[Features.AutoAvif] = true;
+    }
+    
     const { data, type } = await processor.process(context);
     return { data, type, headers: context.headers };
   } else {
-    const { buffer, type, headers } = await bs.get(uri, beforeGetFn);
+    console.log(`Direct access to image: ${uri}`);
+    // 直接访问图像，不再需要bypass函数
+    const { buffer, type, headers } = await bs.get(uri);
     return { data: buffer, type: type, headers: headers };
   }
 }
@@ -207,11 +239,6 @@ async function validatePostRequest(ctx: Koa.ParameterizedContext) {
     targetBucket: body.targetBucket,
     targetObject: body.targetObject,
   };
-}
-
-function bypass() {
-  // NOTE: This is intended to tell CloudFront to directly access the s3 object.
-  throw new HttpErrors[403]('Please visit s3 directly');
 }
 
 async function getSecretFromSecretsManager() {
