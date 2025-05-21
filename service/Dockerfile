@@ -13,9 +13,6 @@ RUN npm install --legacy-peer-deps
 # 复制源代码
 COPY . /app/
 
-# 编译TypeScript
-RUN npm run compile
-
 # 设置环境变量
 ENV NODE_ENV=production
 ENV AWS_SDK_LOAD_CONFIG=1
@@ -26,4 +23,4 @@ ENV ALLOW_DIRECT_ACCESS=true
 EXPOSE 8080
 
 # 启动应用
-CMD ["node", "lib/src/index.js"]
+CMD ["node", "src/index.js"]
