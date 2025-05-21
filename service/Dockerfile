@@ -5,13 +5,16 @@ WORKDIR /app
 # 复制源代码和依赖
 COPY package.json package-lock.json tsconfig.json /app/
 RUN apk update && \
-    apk add fontconfig font-noto
+    apk add fontconfig font-noto ffmpeg
 
 # 安装所有依赖
 RUN npm install --legacy-peer-deps
 
 # 复制源代码
 COPY . /app/
+
+# 编译TypeScript
+RUN npm run compile
 
 # 设置环境变量
 ENV NODE_ENV=production
