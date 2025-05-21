@@ -23,4 +23,4 @@ ENV ALLOW_DIRECT_ACCESS=true
 EXPOSE 8080
 
 # 启动应用
-CMD ["node", "src/index.js"]
+CMD ["node", "lib/src/index.js"]
