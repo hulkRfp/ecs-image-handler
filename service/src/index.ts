@@ -20,6 +20,7 @@ interface ExtendedContext extends Koa.ParameterizedContext {
   features?: { [key: string]: any };
 }
 
+// 定义缓存对象接口
 interface CacheObject {
   body: any;
   type: string;
@@ -41,7 +42,7 @@ const lruCache = new LRUCache<string, CacheObject>({
   max: config.CACHE_MAX_ITEMS,
   maxSize: config.CACHE_MAX_SIZE_MB * MB,
   ttl: config.CACHE_TTL_SEC * 1000,
-  sizeCalculation: (value) => {
+  sizeCalculation: (value: CacheObject) => {
     return value.body.length;
   },
 });
