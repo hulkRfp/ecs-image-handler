@@ -9,7 +9,10 @@
       "CookieBehavior": "none"
      },
      "HeadersConfig": {
-      "HeaderBehavior": "none"
+      "HeaderBehavior": "whitelist",
+      "Headers": [
+       "x-bucket"
+      ]
      },
      "Name": {
       "Fn::Join": [
@@ -114,7 +117,7 @@
   "ECSImageHandlerVpcpublicSubnet1Subnet2315ECBE": {
    "Type": "AWS::EC2::Subnet",
    "Properties": {
-    "AvailabilityZone": "us-east-1a",
+    "AvailabilityZone": "us-west-2a",
     "CidrBlock": "10.0.0.0/19",
     "MapPublicIpOnLaunch": true,
     "Tags": [
@@ -233,7 +236,7 @@
   "ECSImageHandlerVpcpublicSubnet2SubnetE5B48832": {
    "Type": "AWS::EC2::Subnet",
    "Properties": {
-    "AvailabilityZone": "us-east-1b",
+    "AvailabilityZone": "us-west-2b",
     "CidrBlock": "10.0.32.0/19",
     "MapPublicIpOnLaunch": true,
     "Tags": [
@@ -310,7 +313,7 @@
   "ECSImageHandlerVpcpublicSubnet3Subnet6D52BC5E": {
    "Type": "AWS::EC2::Subnet",
    "Properties": {
-    "AvailabilityZone": "us-east-1c",
+    "AvailabilityZone": "us-west-2c",
     "CidrBlock": "10.0.64.0/19",
     "MapPublicIpOnLaunch": true,
     "Tags": [
@@ -387,7 +390,7 @@
   "ECSImageHandlerVpcprivateSubnet1SubnetD8242D8A": {
    "Type": "AWS::EC2::Subnet",
    "Properties": {
-    "AvailabilityZone": "us-east-1a",
+    "AvailabilityZone": "us-west-2a",
     "CidrBlock": "10.0.96.0/19",
     "MapPublicIpOnLaunch": false,
     "Tags": [
@@ -461,7 +464,7 @@
   "ECSImageHandlerVpcprivateSubnet2Subnet3E2C0ABF": {
    "Type": "AWS::EC2::Subnet",
    "Properties": {
-    "AvailabilityZone": "us-east-1b",
+    "AvailabilityZone": "us-west-2b",
     "CidrBlock": "10.0.128.0/19",
     "MapPublicIpOnLaunch": false,
     "Tags": [
@@ -535,7 +538,7 @@
   "ECSImageHandlerVpcprivateSubnet3SubnetC3219F07": {
    "Type": "AWS::EC2::Subnet",
    "Properties": {
-    "AvailabilityZone": "us-east-1c",
+    "AvailabilityZone": "us-west-2c",
     "CidrBlock": "10.0.160.0/19",
     "MapPublicIpOnLaunch": false,
     "Tags": [
@@ -824,7 +827,7 @@
         "ssm:GetParameters"
        ],
        "Effect": "Allow",
-       "Resource": "arn:aws:ssm:us-east-1:057313215210:parameter/ecs-image-handler/config"
+       "Resource": "arn:aws:ssm:us-west-2:057313215210:parameter/ecs-image-handler/config"
       },
       {
        "Action": [
@@ -836,8 +839,10 @@
        ],
        "Effect": "Allow",
        "Resource": [
-        "arn:aws:s3:::new-ue1-img",
-        "arn:aws:s3:::new-ue1-img/*"
+        "arn:aws:s3:::new-uw2-img",
+        "arn:aws:s3:::new-uw2-img/*",
+        "arn:aws:s3:::new-uw2-img2",
+        "arn:aws:s3:::new-uw2-img2/*"
        ]
       }
      ],
@@ -878,7 +883,7 @@
        },
        {
         "Name": "SRC_BUCKET",
-        "Value": "new-ue1-img"
+        "Value": "new-uw2-img"
        },
        {
         "Name": "STYLE_TABLE_NAME",
@@ -897,11 +902,15 @@
        {
         "Name": "AWS_SDK_LOAD_CONFIG",
         "Value": "1"
+       },
+       {
+        "Name": "SRC_BUCKETS",
+        "Value": "new-uw2-img,new-uw2-img2"
        }
       ],
       "Essential": true,
       "Image": {
-       "Fn::Sub": "057313215210.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-057313215210-us-east-1:df3079341dbc69fd8eb41ef9cc66d68e676528b421827bd145932be801274416"
+       "Fn::Sub": "057313215210.dkr.ecr.us-west-2.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-057313215210-us-west-2:3fb194a0eb37cedb6720ad5adb808ed5b3edc63d6bfd17ff612b6f929988610b"
       },
       "LogConfiguration": {
        "LogDriver": "awslogs",
@@ -910,7 +919,7 @@
          "Ref": "ECSImageHandlerServiceTaskDefwebLogGroupC8F5A8F4"
         },
         "awslogs-stream-prefix": "ecs-image-handler",
-        "awslogs-region": "us-east-1"
+        "awslogs-region": "us-west-2"
        }
       },
       "Name": "web",
@@ -989,7 +998,7 @@
         "ecr:GetDownloadUrlForLayer"
        ],
        "Effect": "Allow",
-       "Resource": "arn:aws:ecr:us-east-1:057313215210:repository/cdk-hnb659fds-container-assets-057313215210-us-east-1"
+       "Resource": "arn:aws:ecr:us-west-2:057313215210:repository/cdk-hnb659fds-container-assets-057313215210-us-west-2"
       },
       {
        "Action": "ecr:GetAuthorizationToken",
@@ -1204,18 +1213,29 @@
    "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
    "Properties": {
     "CloudFrontOriginAccessIdentityConfig": {
-     "Comment": "Identity for s3://new-ue1-img"
+     "Comment": "Identity for s3://new-uw2-img"
     }
    },
    "Metadata": {
     "aws:cdk:path": "ecs-image-handler-stack/ECSImageHandler/S3Origin0/Resource"
    }
   },
-  "ECSImageHandlerDistribution0B41EC8CA": {
+  "ECSImageHandlerS3Origin1187FBF00": {
+   "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
+   "Properties": {
+    "CloudFrontOriginAccessIdentityConfig": {
+     "Comment": "Identity for s3://new-uw2-img2"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ecs-image-handler-stack/ECSImageHandler/S3Origin1/Resource"
+   }
+  },
+  "ECSImageHandlerDistribution3A767582": {
    "Type": "AWS::CloudFront::Distribution",
    "Properties": {
     "DistributionConfig": {
-     "Comment": "ecs-image-handler-stack distribution0",
+     "Comment": "ecs-image-handler-stack distribution",
      "CustomErrorResponses": [
       {
        "ErrorCachingMinTTL": 10,
@@ -1246,7 +1266,7 @@
       "OriginRequestPolicyId": {
        "Ref": "ECSImageHandlerForwardAllQueryString51587837"
       },
-      "TargetOriginId": "ecsimagehandlerstackECSImageHandlerDistribution0OriginGroup153F36B51",
+      "TargetOriginId": "ecsimagehandlerstackECSImageHandlerDistributionOriginGroup1B1368D23",
       "ViewerProtocolPolicy": "redirect-to-https"
      },
      "Enabled": true,
@@ -1263,14 +1283,14 @@
           "Quantity": 1
          }
         },
-        "Id": "ecsimagehandlerstackECSImageHandlerDistribution0OriginGroup153F36B51",
+        "Id": "ecsimagehandlerstackECSImageHandlerDistributionOriginGroup1B1368D23",
         "Members": {
          "Items": [
           {
-           "OriginId": "ecsimagehandlerstackECSImageHandlerDistribution0Origin1959D2FE6"
+           "OriginId": "ecsimagehandlerstackECSImageHandlerDistributionOrigin1DBD4585B"
           },
           {
-           "OriginId": "ecsimagehandlerstackECSImageHandlerDistribution0Origin25BA4F0DF"
+           "OriginId": "ecsimagehandlerstackECSImageHandlerDistributionOrigin280422A18"
           }
          ],
          "Quantity": 2
@@ -1293,17 +1313,11 @@
          "DNSName"
         ]
        },
-       "Id": "ecsimagehandlerstackECSImageHandlerDistribution0Origin1959D2FE6",
-       "OriginCustomHeaders": [
-        {
-         "HeaderName": "x-bucket",
-         "HeaderValue": "new-ue1-img"
-        }
-       ]
+       "Id": "ecsimagehandlerstackECSImageHandlerDistributionOrigin1DBD4585B"
       },
       {
-       "DomainName": "new-ue1-img.s3.us-east-1.amazonaws.com",
-       "Id": "ecsimagehandlerstackECSImageHandlerDistribution0Origin25BA4F0DF",
+       "DomainName": "new-uw2-img.s3.us-west-2.amazonaws.com",
+       "Id": "ecsimagehandlerstackECSImageHandlerDistributionOrigin280422A18",
        "S3OriginConfig": {
         "OriginAccessIdentity": {
          "Fn::Join": [
@@ -1322,7 +1336,7 @@
     }
    },
    "Metadata": {
-    "aws:cdk:path": "ecs-image-handler-stack/ECSImageHandler/Distribution0/Resource"
+    "aws:cdk:path": "ecs-image-handler-stack/ECSImageHandler/Distribution/Resource"
    }
   },
   "EcsDefaultClusterMnL3mNNYNVpc18E0451A": {
@@ -1372,8 +1386,8 @@
     ]
    }
   },
-  "DistributionUrl0": {
-   "Description": "The CloudFront distribution url0 for bucket0: new-ue1-img",
+  "DistributionUrl": {
+   "Description": "The CloudFront distribution url for all buckets",
    "Value": {
     "Fn::Join": [
      "",
@@ -1381,7 +1395,7 @@
       "https://",
       {
        "Fn::GetAtt": [
-        "ECSImageHandlerDistribution0B41EC8CA",
+        "ECSImageHandlerDistribution3A767582",
         "DomainName"
        ]
       }
