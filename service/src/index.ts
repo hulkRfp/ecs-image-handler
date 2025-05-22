@@ -47,7 +47,7 @@ const lruCache = new LRUCache<string, CacheObject>({
   },
 });
 
-sharp.cache({ items: 1000, files: 200, memory: 2000 });
+sharp.cache({ items: 500, files: 200, memory: 1024 });
 
 app.use(logger());
 app.use(errorHandler());
@@ -66,27 +66,10 @@ app.use(koaCash({
   },
 }));
 
+// 禁止任何上传行为，直接返回 403
 router.post('/images', async (ctx) => {
-  console.log('post request body=', ctx.request.body);
-
-  const opt = await validatePostRequest(ctx);
-  ctx.path = opt.sourceObject;
-  ctx.query['x-oss-process'] = opt.params;
-  ctx.headers['x-bucket'] = opt.sourceBucket;
-
-  const { data, type } = await ossprocess(ctx);
-  if (type !== 'application/json') {
-    // TODO: Do we need to abstract this with IBufferStore?
-    const _s3: S3 = new S3({ region: config.region });
-    await _s3.putObject({
-      Bucket: opt.targetBucket,
-      Key: opt.targetObject,
-      ContentType: type,
-      Body: data,
-    }).promise();
-
-    ctx.body = `saved result to s3://${opt.targetBucket}/${opt.targetObject}`;
-  }
+  ctx.status = 403;
+  ctx.body = { message: '上传被禁止' };
 });
 
 router.get(['/', '/ping'], async (ctx) => {

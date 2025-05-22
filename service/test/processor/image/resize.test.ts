@@ -1,5 +1,5 @@
 import * as sharp from 'sharp';
-import { ResizeAction } from '../../../src/processor/image/resize';
+import { ResizeAction } from '../../../src/processor/image/resize.ts.old';
 import { SharpBufferStore } from '../../../src/store';
 import { mkctx } from './utils';
 

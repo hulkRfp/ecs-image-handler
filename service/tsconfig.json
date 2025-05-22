@@ -30,6 +30,6 @@
     "src/**/*.ts",
     "src/**/*.d.ts",
     "test/**/*.ts"
-  ],
+, "src/processor/image/resize.ts.old"  ],
   "exclude": [],
 }

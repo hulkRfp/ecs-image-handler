@@ -55,13 +55,13 @@ export class FormatAction extends BaseImageAction {
       ctx.image.jpeg();
     } else if (opt.format === 'png') {
       ctx.metadata.format = 'png';
-      ctx.image.png({ effort: 2, quality: 80 });
+      ctx.image.png({ effort: 2 });
     } else if (opt.format === 'webp') {
       ctx.metadata.format = 'webp';
-      ctx.image.webp({ effort: 2, quality: 80 });
+      ctx.image.webp({ effort: 2 });
     } else if (opt.format === 'avif') {
       ctx.metadata.format = 'avif';
-      ctx.image.avif({ effort: 2, quality: 60 }); // AVIF默认使用较低的质量以获得更好的压缩率
+      ctx.image.avif({ effort: 2 }); // AVIF默认使用较低的质量以获得更好的压缩率
     }
   }
 }

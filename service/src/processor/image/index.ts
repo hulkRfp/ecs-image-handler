@@ -15,7 +15,7 @@ import { IndexCropAction } from './indexcrop';
 import { InfoAction } from './info';
 import { InterlaceAction } from './interlace';
 import { QualityAction } from './quality';
-import { ResizeAction } from './resize';
+import { ResizeAction } from './resize.ts.old';
 import { RotateAction } from './rotate';
 import { RoundedCornersAction } from './rounded-corners';
 import { SharpenAction } from './sharpen';

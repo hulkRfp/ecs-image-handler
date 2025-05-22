@@ -2,7 +2,7 @@ import * as sharp from 'sharp';
 import { Features, IActionOpts, IProcessContext, ReadOnly } from '../../src/processor';
 import { ImageProcessor } from '../../src/processor/image';
 import { BaseImageAction } from '../../src/processor/image/_base';
-import { ResizeAction } from '../../src/processor/image/resize';
+import { ResizeAction } from '../../src/processor/image/resize.ts.old';
 import { StyleProcessor } from '../../src/processor/style';
 import { VideoProcessor } from '../../src/processor/video';
 import { MemKVStore, SharpBufferStore } from '../../src/store';
