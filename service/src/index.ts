@@ -1,4 +1,4 @@
-import * as S3 from 'aws-sdk/clients/s3';
+// import * as S3 from 'aws-sdk/clients/s3';
 import * as SecretsManager from 'aws-sdk/clients/secretsmanager';
 import * as SSM from 'aws-sdk/clients/ssm';
 import * as Koa from 'koa';
@@ -195,48 +195,48 @@ Promise<{ data: any; type: string; headers: IHttpHeaders }> {
   }
 }
 
-async function validatePostRequest(ctx: Koa.ParameterizedContext) {
+// async function validatePostRequest(ctx: Koa.ParameterizedContext) {
   // Fox edited in 2022/04/25: enhance the security of the post requests
-  const authHeader = ctx.get('X-Client-Authorization');
-  const secretHeader = await getHeaderFromSecretsManager();
+  // const authHeader = ctx.get('X-Client-Authorization');
+  // const secretHeader = await getHeaderFromSecretsManager();
 
-  if (authHeader !== secretHeader) {
-    throw new InvalidArgument('Invalid post header.');
-  }
+  // if (authHeader !== secretHeader) {
+  //  throw new InvalidArgument('Invalid post header.');
+  // }
 
-  const body = ctx.request.body;
-  if (!body) {
-    throw new InvalidArgument('Empty post body.');
-  }
-  const valid = body.params
-    && body.sourceBucket
-    && body.sourceObject
-    && body.targetBucket
-    && body.targetObject;
-  if (!valid) {
-    throw new InvalidArgument('Invalid post body.');
-  }
-  return {
-    params: body.params,
-    sourceBucket: body.sourceBucket,
-    sourceObject: body.sourceObject,
-    targetBucket: body.targetBucket,
-    targetObject: body.targetObject,
-  };
-}
+  // const body = ctx.request.body;
+  // if (!body) {
+  //  throw new InvalidArgument('Empty post body.');
+  // }
+  // const valid = body.params
+  //   && body.sourceBucket
+  //   && body.sourceObject
+  //   && body.targetBucket
+  //   && body.targetObject;
+  // if (!valid) {
+  //   throw new InvalidArgument('Invalid post body.');
+  // }
+  // return {
+  //   params: body.params,
+  //   sourceBucket: body.sourceBucket,
+  //   sourceObject: body.sourceObject,
+  //   targetBucket: body.targetBucket,
+  //   targetObject: body.targetObject,
+  // };
+// }
 
-async function getSecretFromSecretsManager() {
-  // Load the AWS SDK
-  const secretName = config.secretName;
-  return smclient.getSecretValue({ SecretId: secretName }).promise();
-}
+// async function getSecretFromSecretsManager() {
+//   // Load the AWS SDK
+//   const secretName = config.secretName;
+//   return smclient.getSecretValue({ SecretId: secretName }).promise();
+// }
 
-async function getHeaderFromSecretsManager() {
-  const secret = await getSecretFromSecretsManager();
-  const secretString = secret.SecretString!;
-  const keypair = JSON.parse(secretString);
-  return keypair['X-Client-Authorization'];
-}
+// async function getHeaderFromSecretsManager() {
+//   const secret = await getSecretFromSecretsManager();
+//   const secretString = secret.SecretString!;
+//   const keypair = JSON.parse(secretString);
+//   return keypair['X-Client-Authorization'];
+// }
 
 async function setMaxGifLimit() {
   if (config.configJsonParameterName) {
