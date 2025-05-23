@@ -1,5 +1,5 @@
 // import * as S3 from 'aws-sdk/clients/s3';
-import * as SecretsManager from 'aws-sdk/clients/secretsmanager';
+// import * as SecretsManager from 'aws-sdk/clients/secretsmanager';
 import * as SSM from 'aws-sdk/clients/ssm';
 import * as Koa from 'koa';
 import * as bodyParser from 'koa-bodyparser';
@@ -12,7 +12,8 @@ import config from './config';
 import debug from './debug';
 import { bufferStore, getBufferStores, getProcessor, parseRequest, setMaxGifSizeMB, setMaxGifPages } from './default';
 import * as is from './is';
-import { Features, IHttpHeaders, InvalidArgument } from './processor';
+// import { Features, IHttpHeaders, InvalidArgument } from './processor';
+import { Features, IHttpHeaders } from './processor';
 import { IBufferStore } from './store';
 
 // 定义一个接口来扩展Koa上下文
@@ -30,7 +31,7 @@ interface CacheObject {
 const MB = 1048576;
 
 const ssm = new SSM({ region: config.region });
-const smclient = new SecretsManager({ region: config.region });
+// const smclient = new SecretsManager({ region: config.region });
 
 // Initialize buffer stores for all configured buckets
 const bufferStores = getBufferStores();
