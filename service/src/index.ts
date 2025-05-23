@@ -1,5 +1,5 @@
 // import * as S3 from 'aws-sdk/clients/s3';
-// import * as SecretsManager from 'aws-sdk/clients/secretsmanager';
+import * as SecretsManager from 'aws-sdk/clients/secretsmanager';
 import * as SSM from 'aws-sdk/clients/ssm';
 import * as Koa from 'koa';
 import * as bodyParser from 'koa-bodyparser';
